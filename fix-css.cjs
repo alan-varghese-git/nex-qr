@@ -1,4 +1,5 @@
-
+const fs = require('fs');
+let css = `
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -69,3 +70,5 @@ input:-webkit-autofill:active{
     -webkit-text-fill-color: hsl(var(--foreground)) !important;
     transition: background-color 5000s ease-in-out 0s;
 }
+`;
+fs.writeFileSync('src/index.css', css);

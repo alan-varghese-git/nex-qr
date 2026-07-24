@@ -194,7 +194,17 @@ const QRGenerator = () => {
             {activeTab === 'url' && (
               <div className="space-y-2">
                 <label className="block text-sm font-medium">Website URL</label>
-                <input type="url" value={qrValue} onChange={(e) => setQrValue(e.target.value)} className="w-full p-3 border rounded-xl bg-background/50 text-foreground hover:bg-background focus:bg-background focus:ring-2 focus:ring-primary/20 outline-none transition-colors shadow-sm" autoComplete="off" spellCheck="false" placeholder="https://..." />
+                <input 
+                  type="url" 
+                  value={qrValue} 
+                  onChange={(e) => setQrValue(e.target.value)} 
+                  className="w-full p-3 border rounded-xl bg-muted/30 dark:bg-black/20 dark:border-white/10 dark:text-white dark:placeholder:text-white/40 text-foreground hover:bg-background focus:bg-background focus:ring-2 focus:ring-primary/20 outline-none transition-colors shadow-sm" 
+                  autoComplete="new-password" 
+                  data-form-type="other"
+                  spellCheck="false" 
+                  placeholder="https://..." 
+                  onKeyDown={(e) => { if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) e.preventDefault(); }}
+                />
               </div>
             )}
             
@@ -617,7 +627,11 @@ const QRGenerator = () => {
                         placeholder="Optional Password"
                         value={dynamicPassword}
                         onChange={(e) => setDynamicPassword(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg border text-xs bg-background/50 text-foreground mt-1 focus:ring-2 focus:ring-primary/20 outline-none transition-colors" autoComplete="off" spellCheck="false"
+                        className="w-full px-3 py-2 rounded-lg border text-xs bg-muted/30 dark:bg-black/20 dark:border-white/10 dark:text-white dark:placeholder:text-white/40 text-foreground mt-1 focus:ring-2 focus:ring-primary/20 outline-none transition-colors" 
+                        autoComplete="new-password" 
+                        data-form-type="other"
+                        spellCheck="false"
+                        onKeyDown={(e) => { if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) e.preventDefault(); }}
                       />
                     </div>
                     <div>
@@ -626,7 +640,11 @@ const QRGenerator = () => {
                         type="datetime-local"
                         value={dynamicExpiresAt}
                         onChange={(e) => setDynamicExpiresAt(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg border text-xs bg-background/50 text-foreground mt-1 focus:ring-2 focus:ring-primary/20 outline-none transition-colors" autoComplete="off" spellCheck="false"
+                        className="w-full px-3 py-2 rounded-lg border text-xs bg-muted/30 dark:bg-black/20 dark:border-white/10 dark:text-white dark:placeholder:text-white/40 text-foreground mt-1 focus:ring-2 focus:ring-primary/20 outline-none transition-colors"
+                        autoComplete="new-password"
+                        data-form-type="other"
+                        spellCheck="false"
+                        onKeyDown={(e) => { e.preventDefault(); }}
                       />
                     </div>
                     <div>
@@ -636,7 +654,11 @@ const QRGenerator = () => {
                         placeholder="e.g. 100"
                         value={dynamicMaxScans}
                         onChange={(e) => setDynamicMaxScans(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg border text-xs bg-background/50 text-foreground mt-1 focus:ring-2 focus:ring-primary/20 outline-none transition-colors" autoComplete="off" spellCheck="false"
+                        className="w-full px-3 py-2 rounded-lg border text-xs bg-muted/30 dark:bg-black/20 dark:border-white/10 dark:text-white dark:placeholder:text-white/40 text-foreground mt-1 focus:ring-2 focus:ring-primary/20 outline-none transition-colors" 
+                        autoComplete="new-password" 
+                        data-form-type="other"
+                        spellCheck="false"
+                        onKeyDown={(e) => { if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) e.preventDefault(); }}
                       />
                     </div>
                   </div>
