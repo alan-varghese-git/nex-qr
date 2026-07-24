@@ -203,7 +203,6 @@ const QRGenerator = () => {
                   data-form-type="other"
                   spellCheck="false" 
                   placeholder="https://..." 
-                  onKeyDown={(e) => { if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) e.preventDefault(); }}
                 />
               </div>
             )}
@@ -631,7 +630,6 @@ const QRGenerator = () => {
                         autoComplete="new-password" 
                         data-form-type="other"
                         spellCheck="false"
-                        onKeyDown={(e) => { if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) e.preventDefault(); }}
                       />
                     </div>
                     <div>
@@ -644,7 +642,6 @@ const QRGenerator = () => {
                         autoComplete="new-password"
                         data-form-type="other"
                         spellCheck="false"
-                        onKeyDown={(e) => { e.preventDefault(); }}
                       />
                     </div>
                     <div>
@@ -658,7 +655,6 @@ const QRGenerator = () => {
                         autoComplete="new-password" 
                         data-form-type="other"
                         spellCheck="false"
-                        onKeyDown={(e) => { if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) e.preventDefault(); }}
                       />
                     </div>
                   </div>

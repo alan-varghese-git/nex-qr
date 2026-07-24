@@ -136,7 +136,6 @@ const CodeFileUpload: React.FC<CodeFileUploadProps> = ({ onCodeExtracted, curren
           autoComplete="new-password" 
           data-form-type="other" 
           spellCheck="false" 
-          onKeyDown={(e) => { if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) e.preventDefault(); }}
           placeholder="def hello_world():&#10;    print('Hello World')" 
         />
       </div>
