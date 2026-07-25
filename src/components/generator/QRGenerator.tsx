@@ -29,7 +29,7 @@ const QRGenerator = () => {
     height: 300,
     data: 'https://example.com',
     margin: 10,
-    qrOptions: { typeNumber: 0, mode: 'Byte', errorCorrectionLevel: 'H' },
+    qrOptions: { typeNumber: 0, mode: 'Byte', errorCorrectionLevel: 'L' },
     imageOptions: { hideBackgroundDots: true, imageSize: 0.4, margin: 10, crossOrigin: 'anonymous' },
     dotsOptions: { type: 'square', color: '#000000' },
     backgroundOptions: { color: '#ffffff' },
@@ -38,7 +38,7 @@ const QRGenerator = () => {
   });
 
   // Smaller version of options for the live preview panel
-  const previewOptions: Options = { ...qrOptions, width: 200, height: 200 };
+  const previewOptions: Options = { ...qrOptions, width: 260, height: 260 };
   
   const [logoFile, setLogoFile] = useState<File | null>(null);
   
