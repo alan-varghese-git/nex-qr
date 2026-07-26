@@ -9,6 +9,7 @@ import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
 import Admin from './pages/Admin';
+import Viewer from './pages/Viewer';
 import { AuthProvider, useAuth } from './contexts/AuthProvider';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -33,6 +34,7 @@ function App() {
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/view" element={<Viewer />} />
               <Route path="/:shortId" element={<RedirectHandler />} />
             </Routes>
           </main>

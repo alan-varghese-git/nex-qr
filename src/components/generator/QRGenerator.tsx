@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid';
 import { supabase } from '../../supabase';
 import { AdvancedQRCode } from './AdvancedQRCode';
 import QRCodeStyling, { type Options } from 'qr-code-styling';
+import LZString from 'lz-string';
 import { useAuth } from '../../contexts/AuthProvider';
 
 const QRGenerator = () => {
@@ -101,8 +102,17 @@ const QRGenerator = () => {
 
   // Sync qrValue to styling options
   useEffect(() => {
-    setQrOptions(prev => ({ ...prev, data: qrValue || ' ' }));
-  }, [qrValue]);
+    let finalData = qrValue || ' ';
+    if (['text', 'code', 'image', 'video'].includes(activeTab) && qrValue) {
+      const compressed = LZString.compressToEncodedURIComponent(qrValue);
+      let url = window.location.origin + window.location.pathname + '#/view?type=' + activeTab + '&data=' + compressed;
+      if (activeTab === 'code' && codeFile) {
+        url += '&file=' + encodeURIComponent(codeFile.name);
+      }
+      finalData = url;
+    }
+    setQrOptions(prev => ({ ...prev, data: finalData }));
+  }, [qrValue, activeTab, codeFile]);
 
   const handleMakeDynamic = async () => {
     setIsCreatingDynamic(true);
