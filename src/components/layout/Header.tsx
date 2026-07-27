@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { QrCode, History, Settings, ScanLine, Moon, Sun, LayoutDashboard, User as UserIcon } from 'lucide-react';
+import { QrCode, History, Settings, ScanLine, Moon, Sun, LayoutDashboard, User as UserIcon, Radar } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthProvider';
 
@@ -61,6 +61,13 @@ const Header = () => {
           >
             <History size={18} />
             History
+          </Link>
+          <Link 
+            to="/nearby" 
+            className={`text-sm font-medium transition-colors flex items-center gap-2 ${location.pathname === '/nearby' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+          >
+            <Radar size={18} />
+            Nearby
           </Link>
         </nav>
         

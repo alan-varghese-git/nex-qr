@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
 import Admin from './pages/Admin';
 import Viewer from './pages/Viewer';
+import NearbyDevices from './components/discovery/NearbyDevices';
 import { AuthProvider, useAuth } from './contexts/AuthProvider';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -35,6 +36,7 @@ function App() {
               <Route path="/settings" element={<Settings />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/view" element={<Viewer />} />
+              <Route path="/nearby" element={<NearbyDevices />} />
               <Route path="/:shortId" element={<RedirectHandler />} />
             </Routes>
           </main>
