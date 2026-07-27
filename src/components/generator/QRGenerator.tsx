@@ -108,6 +108,7 @@ const QRGenerator = () => {
       let url = window.location.origin + window.location.pathname + '#/view?type=' + activeTab + '&data=' + compressed;
       if (activeTab === 'code' && codeFile) {
         url += '&file=' + encodeURIComponent(codeFile.name);
+        url += '&lang=' + encodeURIComponent(codeFile.ext.toLowerCase());
       }
       finalData = url;
     }
@@ -228,7 +229,7 @@ const QRGenerator = () => {
               <div className="border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center bg-muted/20 relative group overflow-hidden">
                 <input 
                   type="file" 
-                  accept=".c,.cpp,.java,.py,.js,.html,.css,.l,.y,.txt,.jsx,.tsx,.ts" 
+                  accept=".c,.h,.cpp,.cc,.cxx,.hpp,.hxx,.java,.kt,.scala,.py,.rb,.pl,.lua,.js,.ts,.html,.htm,.css,.json,.xml,.yaml,.yml,.cs,.vb,.go,.rs,.dart,.swift,.sql,.r,.m,.sh,.ps1,.asm,.s,.pas,.f,.f90,.cob,.cbl,.lisp,.lsp,.l,.txt,.jsx,.tsx" 
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
                   title=""
                   onChange={(e)=>{
@@ -243,7 +244,7 @@ const QRGenerator = () => {
                     }
                     
                     const ext = file.name.split('.').pop()?.toLowerCase();
-                    const allowedExts = ['c', 'cpp', 'java', 'py', 'js', 'html', 'css', 'l', 'y', 'txt', 'jsx', 'tsx', 'ts'];
+                    const allowedExts = ['c', 'h', 'cpp', 'cc', 'cxx', 'hpp', 'hxx', 'java', 'kt', 'scala', 'py', 'rb', 'pl', 'lua', 'js', 'ts', 'html', 'htm', 'css', 'json', 'xml', 'yaml', 'yml', 'cs', 'vb', 'go', 'rs', 'dart', 'swift', 'sql', 'r', 'm', 'sh', 'ps1', 'asm', 's', 'pas', 'f', 'f90', 'cob', 'cbl', 'lisp', 'lsp', 'l', 'txt', 'jsx', 'tsx'];
                     if(!ext || !allowedExts.includes(ext)) {
                       alert("Invalid file type. Allowed: " + allowedExts.join(', '));
                       e.target.value = '';
@@ -277,7 +278,7 @@ const QRGenerator = () => {
                     <>
                       <UploadCloud className="w-10 h-10 text-muted-foreground mb-3 group-hover:text-primary transition-colors" />
                       <span className="text-sm font-medium">Drag & drop source code or click to browse</span>
-                      <span className="text-xs text-muted-foreground mt-1">.c, .cpp, .java, .py, .js, .txt (Max 5MB)</span>
+                      <span className="text-xs text-muted-foreground mt-1">.c, .java, .py, .js, .html, .txt and more (Max 5MB)</span>
                     </>
                   )}
                 </div>

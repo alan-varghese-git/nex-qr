@@ -13,6 +13,29 @@ const Viewer = () => {
   const type = searchParams.get('type');
   const rawData = searchParams.get('data');
   const filename = searchParams.get('file') || 'download';
+  const ext = searchParams.get('lang') || 'txt';
+
+  const langMap: Record<string, string> = {
+    'js': 'javascript',
+    'ts': 'typescript',
+    'py': 'python',
+    'rb': 'ruby',
+    'cs': 'csharp',
+    'sh': 'bash',
+    'ps1': 'powershell',
+    'kt': 'kotlin',
+    'rs': 'rust',
+    'yml': 'yaml',
+    'htm': 'html',
+    'cxx': 'cpp',
+    'cc': 'cpp',
+    'hpp': 'cpp',
+    'hxx': 'cpp',
+    'h': 'c',
+    'pl': 'perl'
+  };
+  
+  const prismLang = langMap[ext] || ext;
 
   useEffect(() => {
     if (!rawData) {
@@ -128,7 +151,7 @@ const Viewer = () => {
             <Highlight
               theme={themes.vsDark}
               code={decodedData}
-              language="javascript"
+              language={prismLang as any}
             >
               {({ className, style, tokens, getLineProps, getTokenProps }) => (
                 <pre style={style} className={`p-6 ${className}`}>
