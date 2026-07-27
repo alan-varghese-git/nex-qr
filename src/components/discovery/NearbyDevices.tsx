@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Radar, Smartphone, Send, X, Wifi, ShieldAlert, Loader2 } from 'lucide-react';
+import { Radar, Smartphone, Send, X, Wifi, ShieldAlert, Loader2, Paperclip, FileDown } from 'lucide-react';
 import { supabase } from '../../supabase';
 import { nanoid } from 'nanoid';
 
@@ -25,6 +25,9 @@ interface SharedData {
   fromColor: string;
   text: string;
   timestamp: number;
+  fileUrl?: string;
+  fileName?: string;
+  fileSize?: number;
 }
 
 const NearbyDevices = () => {
@@ -33,7 +36,15 @@ const NearbyDevices = () => {
   const [isOptedIn, setIsOptedIn] = useState(false);
   const [devices, setDevices] = useState<Device[]>([]);
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
+  
+  // Send state
   const [message, setMessage] = useState('');
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [attachedFileUrl, setAttachedFileUrl] = useState<string | null>(null);
+  const [attachedFileName, setAttachedFileName] = useState<string | null>(null);
+  const [attachedFileSize, setAttachedFileSize] = useState<number | null>(null);
+
   const [receivedData, setReceivedData] = useState<SharedData | null>(null);
   
   // Self identity
@@ -110,7 +121,10 @@ const NearbyDevices = () => {
             fromName: data.fromName,
             fromColor: data.fromColor,
             text: data.text,
-            timestamp: Date.now()
+            timestamp: Date.now(),
+            fileUrl: data.fileUrl,
+            fileName: data.fileName,
+            fileSize: data.fileSize
           });
         }
       })
@@ -131,9 +145,74 @@ const NearbyDevices = () => {
     };
   }, [publicIp, isOptedIn, self]);
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if(!file) return;
+    
+    setUploadingFile(true);
+    setUploadProgress(0);
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', 'https://tmpfiles.org/api/v1/upload', true);
+
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const progress = (event.loaded / event.total) * 100;
+          setUploadProgress(progress);
+        }
+      };
+
+      xhr.onload = () => {
+        setUploadingFile(false);
+        e.target.value = '';
+        if (xhr.status === 200) {
+          try {
+            const response = JSON.parse(xhr.responseText);
+            const rawUrl = response.data.url;
+            const directUrl = rawUrl.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+            setAttachedFileUrl(directUrl);
+            setAttachedFileName(file.name);
+            setAttachedFileSize(file.size);
+          } catch (err: any) {
+            alert("Failed to parse upload response.");
+          }
+        } else {
+          alert("Upload failed with status: " + xhr.status);
+        }
+      };
+
+      xhr.onerror = () => {
+        setUploadingFile(false);
+        e.target.value = '';
+        alert("Upload failed. Please check your connection.");
+      };
+
+      xhr.send(formData);
+
+    } catch (err: any) {
+      console.error("Upload setup error:", err);
+      alert("Upload setup failed: " + err.message);
+      setUploadingFile(false);
+      e.target.value = '';
+    }
+  };
+
+  const closeModal = () => {
+    setSelectedDevice(null);
+    setMessage('');
+    setAttachedFileUrl(null);
+    setAttachedFileName(null);
+    setAttachedFileSize(null);
+    setUploadingFile(false);
+  };
+
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedDevice || !message.trim() || !channelRef.current) return;
+    if (!selectedDevice || (!message.trim() && !attachedFileUrl) || !channelRef.current) return;
     
     await channelRef.current.send({
       type: 'broadcast',
@@ -142,16 +221,18 @@ const NearbyDevices = () => {
         targetId: selectedDevice.id,
         fromName: self.name,
         fromColor: self.color,
-        text: message
+        text: message,
+        fileUrl: attachedFileUrl,
+        fileName: attachedFileName,
+        fileSize: attachedFileSize
       }
     });
     
-    setMessage('');
-    setSelectedDevice(null);
+    closeModal();
     // Optionally show a "Sent" toast here
   };
 
-  const handleCopy = () => {
+  const handleCopyText = () => {
     if (receivedData?.text) {
       navigator.clipboard.writeText(receivedData.text);
       setReceivedData(null);
@@ -187,7 +268,7 @@ const NearbyDevices = () => {
           </div>
           <h2 className="text-2xl font-bold mb-3">Local Network Discovery</h2>
           <p className="text-muted-foreground mb-6">
-            Discover other devices on your current Wi-Fi network to instantly share links, text, and QR data peer-to-peer.
+            Discover other devices on your current Wi-Fi network to instantly share links, text, files, and QR data peer-to-peer.
           </p>
           <div className="bg-muted/50 p-4 rounded-xl text-sm text-left mb-8">
             <p className="flex items-start gap-2 text-muted-foreground">
@@ -283,7 +364,7 @@ const NearbyDevices = () => {
                   <h3 className="font-bold text-sm">Send to {selectedDevice.name}</h3>
                 </div>
               </div>
-              <button onClick={() => setSelectedDevice(null)} className="p-1 hover:bg-muted rounded-full transition-colors">
+              <button onClick={closeModal} className="p-1 hover:bg-muted rounded-full transition-colors">
                 <X className="w-5 h-5 text-muted-foreground" />
               </button>
             </div>
@@ -295,11 +376,44 @@ const NearbyDevices = () => {
                 placeholder="Type a message, URL, or paste QR data..."
                 className="w-full p-3 border rounded-xl bg-background/50 focus:bg-background focus:ring-2 focus:ring-primary/20 outline-none transition-colors min-h-[120px] resize-none"
               />
-              <div className="flex justify-end gap-2">
-                <button type="button" onClick={() => setSelectedDevice(null)} className="px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted rounded-lg transition-colors">
+              
+              {attachedFileUrl ? (
+                <div className="flex items-center justify-between p-3 bg-muted rounded-xl border">
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <Paperclip className="w-5 h-5 text-primary flex-shrink-0" />
+                    <div className="truncate">
+                      <p className="text-sm font-medium truncate">{attachedFileName}</p>
+                      <p className="text-xs text-muted-foreground">{(attachedFileSize! / 1024 / 1024).toFixed(2)} MB</p>
+                    </div>
+                  </div>
+                  <button type="button" onClick={() => {setAttachedFileUrl(null); setAttachedFileName(null); setAttachedFileSize(null);}} className="p-1.5 hover:bg-background rounded-full transition-colors">
+                    <X className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </div>
+              ) : uploadingFile ? (
+                <div className="p-3 bg-muted rounded-xl border space-y-2">
+                  <div className="flex items-center justify-between text-xs font-medium">
+                    <span>Uploading file...</span>
+                    <span>{Math.round(uploadProgress)}%</span>
+                  </div>
+                  <div className="w-full bg-background rounded-full h-1.5 overflow-hidden border">
+                    <div className="bg-primary h-full transition-all duration-300 ease-out" style={{ width: `${uploadProgress}%` }}></div>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <input type="file" id="nearby-file-upload" className="hidden" onChange={handleFileUpload} />
+                  <label htmlFor="nearby-file-upload" className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted rounded-lg transition-colors cursor-pointer border border-transparent hover:border-border">
+                    <Paperclip className="w-4 h-4" /> Attach File
+                  </label>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button type="button" onClick={closeModal} className="px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted rounded-lg transition-colors">
                   Cancel
                 </button>
-                <button type="submit" disabled={!message.trim()} className="flex items-center gap-2 px-6 py-2 bg-primary text-primary-foreground text-sm font-semibold rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50">
+                <button type="submit" disabled={(!message.trim() && !attachedFileUrl) || uploadingFile} className="flex items-center gap-2 px-6 py-2 bg-primary text-primary-foreground text-sm font-semibold rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50">
                   <Send className="w-4 h-4" /> Send
                 </button>
               </div>
@@ -326,17 +440,36 @@ const NearbyDevices = () => {
                 <p className="text-xs text-muted-foreground">Just now via Local Network</p>
               </div>
               
-              <div className="bg-muted/50 p-4 rounded-xl text-left border">
-                <p className="whitespace-pre-wrap break-all text-sm font-medium">{receivedData.text}</p>
-              </div>
+              {receivedData.text && (
+                <div className="bg-muted/50 p-4 rounded-xl text-left border">
+                  <p className="whitespace-pre-wrap break-all text-sm font-medium">{receivedData.text}</p>
+                </div>
+              )}
+
+              {receivedData.fileUrl && (
+                <a href={receivedData.fileUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-4 bg-primary/10 border border-primary/20 rounded-xl hover:bg-primary/20 transition-colors group text-left">
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <div className="p-2 bg-background rounded-lg group-hover:shadow-sm transition-all flex-shrink-0">
+                      <Paperclip className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="truncate">
+                      <p className="text-sm font-bold text-foreground truncate">{receivedData.fileName}</p>
+                      <p className="text-xs text-muted-foreground">{(receivedData.fileSize! / 1024 / 1024).toFixed(2)} MB • Expires in 60m</p>
+                    </div>
+                  </div>
+                  <FileDown className="w-5 h-5 text-primary flex-shrink-0 ml-2" />
+                </a>
+              )}
               
               <div className="flex gap-3 pt-2">
                 <button onClick={() => setReceivedData(null)} className="flex-1 px-4 py-3 border font-medium rounded-xl hover:bg-muted transition-colors">
                   Dismiss
                 </button>
-                <button onClick={handleCopy} className="flex-1 px-4 py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-md">
-                  Copy & Close
-                </button>
+                {receivedData.text && (
+                  <button onClick={handleCopyText} className="flex-1 px-4 py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-md">
+                    Copy Text
+                  </button>
+                )}
               </div>
             </div>
           </div>
