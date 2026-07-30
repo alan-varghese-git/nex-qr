@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { QrCode, History, Settings, ScanLine, Moon, Sun, LayoutDashboard, User as UserIcon, Radar } from 'lucide-react';
+import { QrCode, History, Settings, ScanLine, Moon, Sun, LayoutDashboard, User as UserIcon, Radar, Menu, X } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthProvider';
 
 const Header = () => {
   const location = useLocation();
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -104,8 +105,52 @@ const Header = () => {
               <span className="hidden sm:inline">Login</span>
             </Link>
           )}
+
+          <button
+            className="md:hidden p-2 text-muted-foreground hover:bg-secondary rounded-full"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
         </div>
       </div>
+
+      {isMobileMenuOpen && (
+        <nav className="md:hidden border-t p-4 space-y-2 bg-card">
+          <Link 
+            to="/" 
+            className={`flex items-center gap-3 p-3 rounded-md transition-colors ${location.pathname === '/' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-secondary'}`}
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <QrCode size={20} />
+            <span className="font-medium">Generator</span>
+          </Link>
+          <Link 
+            to="/scan" 
+            className={`flex items-center gap-3 p-3 rounded-md transition-colors ${location.pathname === '/scan' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-secondary'}`}
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <ScanLine size={20} />
+            <span className="font-medium">Scanner</span>
+          </Link>
+          <Link 
+            to="/history" 
+            className={`flex items-center gap-3 p-3 rounded-md transition-colors ${location.pathname === '/history' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-secondary'}`}
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <History size={20} />
+            <span className="font-medium">History</span>
+          </Link>
+          <Link 
+            to="/nearby" 
+            className={`flex items-center gap-3 p-3 rounded-md transition-colors ${location.pathname === '/nearby' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-secondary'}`}
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <Radar size={20} />
+            <span className="font-medium">Nearby</span>
+          </Link>
+        </nav>
+      )}
     </header>
   );
 };
