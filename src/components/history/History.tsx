@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Search, Trash2, ExternalLink, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { supabase } from '../../supabase';
+import { useAuth } from '../../contexts/AuthProvider';
 
 interface ScanAnalytics {
   ip: string;
@@ -23,6 +24,7 @@ interface HistoryItem {
 }
 
 const History = () => {
+  const { user } = useAuth();
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -31,12 +33,21 @@ const History = () => {
 
   useEffect(() => {
     fetchHistory();
-  }, []);
+  }, [user]);
 
   const fetchHistory = async () => {
+    if (!user) {
+      setHistory([]);
+      setIsLoading(false);
+      return;
+    }
     try {
       setIsLoading(true);
-      const { data, error } = await supabase.from('qrcodes').select('*').order('created_at', { ascending: false });
+      const { data, error } = await supabase
+        .from('qrcodes')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
       if (error) throw error;
       setHistory(data as HistoryItem[]);
     } catch (err) {
