@@ -73,8 +73,9 @@ const Auth = () => {
             }}
             useOneTap
             width="100%"
-            theme="outline"
+            theme="filled_black"
             size="large"
+            shape="rectangular"
             text="continue_with"
           />
         </div>
