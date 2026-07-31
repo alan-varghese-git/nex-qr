@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { useNavigate } from 'react-router-dom';
 import { Loader2, Mail, Lock, AlertCircle } from 'lucide-react';
+import { GoogleLogin } from '@react-oauth/google';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -16,24 +17,6 @@ const Auth = () => {
       if (session) navigate('/dashboard');
     });
   }, [navigate]);
-
-  const handleGoogleSignIn = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/#/dashboard`
-        }
-      });
-      if (error) throw error;
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,14 +46,39 @@ const Auth = () => {
         <p className="text-muted-foreground mt-2">Manage your dynamic QR codes and analytics.</p>
       </div>
 
-      <button
-        onClick={handleGoogleSignIn}
-        disabled={loading}
-        className="w-full flex items-center justify-center gap-3 bg-white text-black border-gray-300 border py-3 rounded-xl font-medium hover:bg-gray-50 transition-colors mb-6"
-      >
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
-        Continue with Google
-      </button>
+      <div className="flex justify-center mb-6 w-full">
+        <div className="w-full flex justify-center [&>div]:w-full [&>div>div]:!w-full">
+          <GoogleLogin
+            onSuccess={async (credentialResponse) => {
+              setLoading(true);
+              setError('');
+              try {
+                if (!credentialResponse.credential) throw new Error("No credential received from Google.");
+                
+                const { error } = await supabase.auth.signInWithIdToken({
+                  provider: 'google',
+                  token: credentialResponse.credential,
+                });
+                
+                if (error) throw error;
+                navigate('/dashboard');
+              } catch (err: any) {
+                setError(err.message);
+              } finally {
+                setLoading(false);
+              }
+            }}
+            onError={() => {
+              setError('Google Sign-In Failed');
+            }}
+            useOneTap
+            width="100%"
+            theme="outline"
+            size="large"
+            text="continue_with"
+          />
+        </div>
+      </div>
 
       <div className="relative flex items-center justify-center mb-6">
         <div className="border-t w-full"></div>

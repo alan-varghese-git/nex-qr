@@ -12,6 +12,7 @@ import Admin from './pages/Admin';
 import Viewer from './pages/Viewer';
 import NearbyDevices from './components/discovery/NearbyDevices';
 import { AuthProvider, useAuth } from './contexts/AuthProvider';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -21,28 +22,32 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 function App() {
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+
   return (
-    <AuthProvider>
-      <Router>
-        <div className="min-h-screen bg-background">
-          <Header />
-          <main className="container mx-auto px-4 py-8">
-            <Routes>
-              <Route path="/" element={<QRGenerator />} />
-              <Route path="/scan" element={<QRScanner />} />
-              <Route path="/history" element={<History />} />
-              <Route path="/login" element={<Auth />} />
-              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/view" element={<Viewer />} />
-              <Route path="/nearby" element={<NearbyDevices />} />
-              <Route path="/:shortId" element={<RedirectHandler />} />
-            </Routes>
-          </main>
-        </div>
-      </Router>
-    </AuthProvider>
+    <GoogleOAuthProvider clientId={clientId}>
+      <AuthProvider>
+        <Router>
+          <div className="min-h-screen bg-background">
+            <Header />
+            <main className="container mx-auto px-4 py-8">
+              <Routes>
+                <Route path="/" element={<QRGenerator />} />
+                <Route path="/scan" element={<QRScanner />} />
+                <Route path="/history" element={<History />} />
+                <Route path="/login" element={<Auth />} />
+                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/view" element={<Viewer />} />
+                <Route path="/nearby" element={<NearbyDevices />} />
+                <Route path="/:shortId" element={<RedirectHandler />} />
+              </Routes>
+            </main>
+          </div>
+        </Router>
+      </AuthProvider>
+    </GoogleOAuthProvider>
   );
 }
 
