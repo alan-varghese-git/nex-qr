@@ -46,7 +46,7 @@ const Auth = () => {
         <p className="text-muted-foreground mt-2">Manage your dynamic QR codes and analytics.</p>
       </div>
 
-      <div className="flex justify-center mb-6">
+      <div className="flex justify-center mb-6 w-full">
         <GoogleLogin
           onSuccess={async (credentialResponse) => {
             setLoading(true);
@@ -71,9 +71,10 @@ const Auth = () => {
             setError('Google Sign-In Failed');
           }}
           useOneTap
-          theme="filled_black"
+          theme="outline"
           size="large"
           shape="rectangular"
+          width="400"
           text="continue_with"
         />
       </div>
