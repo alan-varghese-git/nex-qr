@@ -46,39 +46,36 @@ const Auth = () => {
         <p className="text-muted-foreground mt-2">Manage your dynamic QR codes and analytics.</p>
       </div>
 
-      <div className="flex justify-center mb-6 w-full">
-        <div className="w-full flex justify-center [&>div]:w-full [&>div>div]:!w-full">
-          <GoogleLogin
-            onSuccess={async (credentialResponse) => {
-              setLoading(true);
-              setError('');
-              try {
-                if (!credentialResponse.credential) throw new Error("No credential received from Google.");
-                
-                const { error } = await supabase.auth.signInWithIdToken({
-                  provider: 'google',
-                  token: credentialResponse.credential,
-                });
-                
-                if (error) throw error;
-                navigate('/dashboard');
-              } catch (err: any) {
-                setError(err.message);
-              } finally {
-                setLoading(false);
-              }
-            }}
-            onError={() => {
-              setError('Google Sign-In Failed');
-            }}
-            useOneTap
-            width="100%"
-            theme="filled_black"
-            size="large"
-            shape="rectangular"
-            text="continue_with"
-          />
-        </div>
+      <div className="flex justify-center mb-6">
+        <GoogleLogin
+          onSuccess={async (credentialResponse) => {
+            setLoading(true);
+            setError('');
+            try {
+              if (!credentialResponse.credential) throw new Error("No credential received from Google.");
+              
+              const { error } = await supabase.auth.signInWithIdToken({
+                provider: 'google',
+                token: credentialResponse.credential,
+              });
+              
+              if (error) throw error;
+              navigate('/dashboard');
+            } catch (err: any) {
+              setError(err.message);
+            } finally {
+              setLoading(false);
+            }
+          }}
+          onError={() => {
+            setError('Google Sign-In Failed');
+          }}
+          useOneTap
+          theme="filled_black"
+          size="large"
+          shape="rectangular"
+          text="continue_with"
+        />
       </div>
 
       <div className="relative flex items-center justify-center mb-6">
