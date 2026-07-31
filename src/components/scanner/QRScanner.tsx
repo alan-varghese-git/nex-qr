@@ -1,12 +1,38 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Camera, Image as ImageIcon, Copy, ExternalLink, RefreshCw } from 'lucide-react';
 import { Html5QrcodeScanner, Html5Qrcode } from 'html5-qrcode';
+import { useNavigate } from 'react-router-dom';
 
 const QRScanner = () => {
   const [scanResult, setScanResult] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'camera' | 'image'>('camera');
   const [isScanning, setIsScanning] = useState(false);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
+  const navigate = useNavigate();
+
+  const handleScanSuccess = (decodedText: string) => {
+    // Check if it's an internal link
+    if (decodedText.includes(window.location.origin) || decodedText.includes('nex-qr.vercel.app')) {
+      try {
+        const url = new URL(decodedText);
+        if (url.hash) {
+          if (scannerRef.current && activeTab === 'camera') {
+            scannerRef.current.clear().catch(console.error);
+          }
+          navigate(url.hash.replace('#', ''));
+          return;
+        }
+      } catch (e) {
+        // Ignore URL parsing errors
+      }
+    }
+
+    setScanResult(decodedText);
+    setIsScanning(false);
+    if (scannerRef.current && activeTab === 'camera') {
+      scannerRef.current.clear().catch(console.error);
+    }
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -24,13 +50,7 @@ const QRScanner = () => {
           }
           
           scannerRef.current.render(
-            (decodedText) => {
-              setScanResult(decodedText);
-              setIsScanning(false);
-              if (scannerRef.current) {
-                scannerRef.current.clear().catch(console.error);
-              }
-            },
+            handleScanSuccess,
             (_error) => {
               // Ignore scan errors
             }
@@ -59,7 +79,7 @@ const QRScanner = () => {
       const html5QrCode = new Html5Qrcode("image-qr-reader");
       try {
         const result = await html5QrCode.scanFile(file, true);
-        setScanResult(result);
+        handleScanSuccess(result);
       } catch (err) {
         alert('No QR code found in the image.');
         setScanResult(null);
